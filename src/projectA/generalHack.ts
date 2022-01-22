@@ -9,8 +9,15 @@ export async function main(ns: NS) {
 
   let lastTimeGrow = 0;
   let lastTimeHack = 0;
+  
   if (!ns.hasRootAccess(target)) {
-    await crack(ns, target);
+    try {
+      await crack(ns, target);
+    } catch (e) {
+      //Stop running script if port is not enough
+      ns.tprint(e);
+      return;
+    }
   }
   const isMoneyQuataEnough = () => {
     return ns.getServerMoneyAvailable(target) < moneyThresh;
