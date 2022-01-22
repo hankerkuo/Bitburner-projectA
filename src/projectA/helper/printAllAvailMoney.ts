@@ -23,20 +23,23 @@ export async function main(ns: NS) {
   ns.disableLog("ALL");
   // Array of all servers that don't need any ports opened
   // to gain root access. These have 16 GB of RAM
-  let servers0Port = serverList(0);
+  let servers0Port = Object.keys(serverList(0));
 
   // Array of all servers that only need 1 port opened
   // to gain root access. These have 32 GB of RAM
-  let servers1Port = serverList(1);
+  let servers1Port = Object.keys(serverList(1));
 
   // Array of all servers that only need 2 port opened
-  let servers2Port = serverList(2);
+  let servers2Port = Object.keys(serverList(2));
 
   // Array of all servers that only need 3 port opened
-  let servers3Port = serverList(3);
+  let servers3Port = Object.keys(serverList(3));
 
   // Array of all servers that only need 4 port opened
-  let servers4Port = serverList(4);
+  let servers4Port = Object.keys(serverList(4));
+
+  // Array of all servers that only need 4 port opened
+  let servers5Port = Object.keys(serverList(5));
 
   const allPortsServerList = [
     servers0Port,
@@ -44,6 +47,7 @@ export async function main(ns: NS) {
     servers2Port,
     servers3Port,
     servers4Port,
+    servers5Port
   ];
 
   for (let i = 0; i < allPortsServerList.length; i++) {
