@@ -40,5 +40,6 @@ export async function runGeneralOnServer(
   if (!ns.fileExists(scriptName, targetServer)) {
     await ns.scp(scriptName, "home", targetServer);
   }
+  await ns.sleep(1000);
   ns.exec(scriptName, targetServer, runThread, targetHack);
 }
