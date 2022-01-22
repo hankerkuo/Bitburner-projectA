@@ -23,4 +23,6 @@
             "snippet": "ns-template"
         },
     ],
+    "bitburner.authToken": "nXDDedY6KnsjVH6W0ZDBeCThJO8b8t8PI6VR5QOPCBC3YsKn8Nw2MNs6zL4vFdqV",
+    "bitburner.showPushSuccessNotification": true
 }
