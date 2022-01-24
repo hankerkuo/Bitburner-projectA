@@ -3,3 +3,4 @@ dist/
 NetscriptDefinitions.d.ts
 .vscode/
 test/
+note.md
