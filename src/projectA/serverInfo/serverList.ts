@@ -1,4 +1,8 @@
-export const serverList = (portToHack: number) => {
+interface portServersInfo {
+  [key: string]: string | number,
+}
+
+export const serverList = (portToHack: number):portServersInfo => {
   switch (portToHack) {
     case 0:
       return {

@@ -5,7 +5,7 @@ import { runGeneralOnServer } from "/projectA/runGeneralOnServer";
 import { serverList } from "/projectA/serverInfo/serverList";
 
 export async function main(ns: NS) {
-  const distributeScript = async (serverName, portRequiredForTargets, ram) => {
+  const distributeScript = async (serverName:string, portRequiredForTargets:number, ram:number) => {
     const servers = serverList(portRequiredForTargets);
     for (const targetServer in servers) {
       if (!servers[targetServer]){
