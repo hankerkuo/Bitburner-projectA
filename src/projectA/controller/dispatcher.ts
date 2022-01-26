@@ -1,19 +1,30 @@
 /** @param {NS} ns **/
 
 import { NS } from "@ns";
-import { TimeLine } from "/projectA/interface/actionParam";
-import { calculateTimeLine } from "/projectA/model/algorithm";
 import { crack } from "/projectA/model/crackServer";
+import { BaseWorker } from "/projectA/model/worker";
+import { scriptPosition } from "/projectA/serverInfo/ScriptInfo";
+import { CONST } from "/projectA/serverInfo/constant";
 
+/**
+ *
+ * @param ns
+ * sample usage: run dispatcher.js comptek MAX-0
+ * will use MAX-0 to observe comptek and run hack,grow,weaken on MAX-0
+ * this script, e.g. dispatcher.ts will always run on home
+ */
 export async function main(ns: NS) {
-  //TODO: implement the dispatch over here
+  ns.disableLog("sleep");
   //TODO: add file log for recording if sequence is correct
-  let serialNum = 0;
   let triggeredNext = false;
-  const observedServer = ns.args[0];
-  const runOn = ns.args[1];
-  const runThread = 180;
-  // while:
+  const observedServer = ns.args[0].toString();
+  const runOn = ns.args[1].toString();
+  const worker = new BaseWorker(ns, observedServer, CONST.HACK_RATIO);
+
+  const milliSecondToHour = (milliSec: number) => {
+    return milliSec / 1000 / 3600;
+  };
+
   const singleCircle = async () => {
     // crack server if possible
     if (!ns.hasRootAccess(observedServer)) {
@@ -26,35 +37,57 @@ export async function main(ns: NS) {
         return;
       }
     }
-    // get server statics
-    
-    // TODO: specify the total RAM to use and distribute the thread to use
-    
-    let hackTime = ns.getHackTime(observedServer);
-    let growTime = ns.getGrowTime(observedServer);
-    let weakTime = ns.getWeakenTime(observedServer);
-    let timeLine: TimeLine = calculateTimeLine(hackTime, growTime, weakTime);
-    // ns.tprint(`Got timeLine: 
-    // hackTime need: ${hackTime},
-    // growTime need: ${growTime},
-    // weakTime need: ${weakTime},
-    // hackStart start: ${timeLine.hackStart},
-    // firstWeakStart start: ${timeLine.firstWeakStart},
-    // growStart start: ${timeLine.growStart},
-    // secondWeakStart start: ${timeLine.secondWeakStart}`);
-    
+
     // copy the files to the runOn server
-    if (!ns.fileExists("/projectA/model/pureHack.js", runOn)) {
-      await ns.scp("/projectA/model/pureHack.js", "home", runOn);
+    if (!ns.fileExists(scriptPosition.pureHack, runOn)) {
+      await ns.scp(scriptPosition.pureHack, "home", runOn);
     }
-    if (!ns.fileExists("/projectA/model/pureWeaken.js", runOn)) {
-      await ns.scp("/projectA/model/pureWeaken.js", "home", runOn);
+    if (!ns.fileExists(scriptPosition.pureWeaken, runOn)) {
+      await ns.scp(scriptPosition.pureWeaken, "home", runOn);
     }
-    if (!ns.fileExists("/projectA/model/pureGrow.js", runOn)) {
-      await ns.scp("/projectA/model/pureGrow.js", "home", runOn);
+    if (!ns.fileExists(scriptPosition.pureGrow, runOn)) {
+      await ns.scp(scriptPosition.pureGrow, "home", runOn);
     }
 
-    // batch observe every 10 second
+    // first time running or too secure, wait first
+    if (ns.args[2] === "starter" || 
+      (ns.getServerSecurityLevel(observedServer) >
+      ns.getServerMinSecurityLevel(observedServer) * 2)
+    ) {
+      ns.tprint(`too secure for ${observedServer}
+      secure level: ${ns.getServerSecurityLevel(observedServer)}
+      script serial = ${ns.args[2]}`);
+      worker.runWeakToLowest(runOn);
+      await ns.sleep(worker.weakTime);
+      ns.exec(
+        scriptPosition.dispather,
+        "home",
+        1,
+        observedServer,
+        runOn,
+        Date.now()
+      );
+      return;
+    }
+
+    // too many grow threads, rest for a while
+    if (worker.growThread() > worker.minThreadGrowNeed * 5) {
+      ns.tprint(`too many threads running for growing ${observedServer}`);
+      ns.tprint(`wait for ${worker.growTime / 1000} seconds`);
+      worker.runGrow(runOn);
+      worker.runWeak2(runOn);
+      await ns.sleep(worker.growTime);
+      ns.exec(
+        scriptPosition.dispather,
+        "home",
+        1,
+        observedServer,
+        runOn,
+        Date.now()
+      );
+      return;
+    }
+
     let milliSecPassed = 0;
     let proceed = {
       hack: false,
@@ -62,13 +95,13 @@ export async function main(ns: NS) {
       grow: false,
       secondWeak: false,
     };
+    // batch observe every 10 second
     while (true) {
-      serialNum++;
       await ns.sleep(10);
       milliSecPassed += 10;
-      if (milliSecPassed == 12000) {
+      if (milliSecPassed == CONST.ACTION_INTERVAL * 4) {
         ns.exec(
-          "/projectA/controller/dispatcher.js",
+          scriptPosition.dispather,
           "home",
           1,
           observedServer,
@@ -77,61 +110,42 @@ export async function main(ns: NS) {
         );
         triggeredNext = true;
       }
-      if (!proceed.hack && milliSecPassed > timeLine.hackStart) {
-        // ns.tprint(`Start Hack script`);
-        ns.exec(
-          "/projectA/model/pureHack.js",
-          runOn,
-          runThread,
-          observedServer,
-          Date.now()
-        );
+      if (!proceed.hack && milliSecPassed > worker.hackTiming()) {
+        ns.print(`Start Hack script`);
         proceed.hack = true;
+        worker.runHack(runOn);
       }
-      if (!proceed.firstWeak && milliSecPassed > timeLine.firstWeakStart) {
-        // ns.tprint(`Start Weak script`);
-        ns.exec(
-          "/projectA/model/pureWeaken.js",
-          runOn,
-          runThread * 5,
-          observedServer,
-          Date.now()
-        );
+      if (!proceed.firstWeak && milliSecPassed > worker.weak1Timing()) {
+        ns.print(`Start Weak script`);
         proceed.firstWeak = true;
+        worker.runWeak1(runOn);
       }
-      if (!proceed.grow && milliSecPassed > timeLine.growStart) {
-        // ns.tprint(`Start Grow script`);
-        ns.exec(
-          "/projectA/model/pureGrow.js",
-          runOn,
-          runThread * 10,
-          observedServer,
-          Date.now()
-        );
+      if (!proceed.grow && milliSecPassed > worker.growTiming()) {
+        ns.print(`Start Grow script`);
         proceed.grow = true;
+        worker.runGrow(runOn);
       }
-      if (!proceed.secondWeak && milliSecPassed > timeLine.secondWeakStart) {
-        // ns.tprint(`Start Weak script`);
-        ns.exec(
-          "/projectA/model/pureWeaken.js",
-          runOn,
-          runThread * 5,
-          observedServer,
-          Date.now()
-        );
+      if (!proceed.secondWeak && milliSecPassed > worker.weak2Timing()) {
+        ns.print(`Start Weak script`);
         proceed.secondWeak = true;
+        worker.runWeak2(runOn);
       }
       if (
-        (proceed.hack &&
-          proceed.firstWeak &&
-          proceed.grow &&
-          proceed.secondWeak && triggeredNext && ns.args[2]) ||
-        serialNum == 2147483647
+        proceed.hack &&
+        proceed.firstWeak &&
+        proceed.grow &&
+        proceed.secondWeak &&
+        triggeredNext &&
+        ns.args[2]
       ) {
+        return;
+      }
+      // shut down script after stuck for 2 hours
+      if (milliSecondToHour(milliSecPassed) > 2) {
         return;
       }
     }
   };
-  
+
   await singleCircle();
 }
