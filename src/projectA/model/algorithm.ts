@@ -1,4 +1,5 @@
 import { TimeLine } from "/projectA/interface/actionParam";
+import { CONST } from "/projectA/serverInfo/constant";
 
 export const calculateTimeLine = (
   hackTime: number,
@@ -6,9 +7,9 @@ export const calculateTimeLine = (
   weakTime: number
 ):TimeLine => {
   let hackStart = -hackTime;
-  let firstWeakStart = 3000 - weakTime;
-  let growStart = 6000 - growTime;
-  let secondWeakStart = 9000 - weakTime;
+  let firstWeakStart = CONST.ACTION_INTERVAL - weakTime;
+  let growStart = CONST.ACTION_INTERVAL * 2 - growTime;
+  let secondWeakStart = CONST.ACTION_INTERVAL * 3 - weakTime;
   //FIXME: fix the offset problem here!
   let offset = Math.min(hackStart, firstWeakStart, growStart, secondWeakStart);
   hackStart -= offset;
