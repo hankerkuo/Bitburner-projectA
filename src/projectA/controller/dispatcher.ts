@@ -96,10 +96,11 @@ export async function main(ns: NS) {
       secondWeak: false,
     };
     // batch observe every 10 second
+    const startTime = Date.now();
     while (true) {
       await ns.sleep(10);
       milliSecPassed += 10;
-      if (milliSecPassed == CONST.ACTION_INTERVAL * 4) {
+      if ((Date.now() - startTime) == CONST.ACTION_INTERVAL * 4) {
         ns.exec(
           scriptPosition.dispather,
           "home",
@@ -110,22 +111,22 @@ export async function main(ns: NS) {
         );
         triggeredNext = true;
       }
-      if (!proceed.hack && milliSecPassed > worker.hackTiming()) {
+      if (!proceed.hack && (Date.now() - startTime) > worker.hackTiming()) {
         ns.print(`Start Hack script`);
         proceed.hack = true;
         worker.runHack(runOn);
       }
-      if (!proceed.firstWeak && milliSecPassed > worker.weak1Timing()) {
+      if (!proceed.firstWeak && (Date.now() - startTime) > worker.weak1Timing()) {
         ns.print(`Start Weak script`);
         proceed.firstWeak = true;
         worker.runWeak1(runOn);
       }
-      if (!proceed.grow && milliSecPassed > worker.growTiming()) {
+      if (!proceed.grow && (Date.now() - startTime) > worker.growTiming()) {
         ns.print(`Start Grow script`);
         proceed.grow = true;
         worker.runGrow(runOn);
       }
-      if (!proceed.secondWeak && milliSecPassed > worker.weak2Timing()) {
+      if (!proceed.secondWeak && (Date.now() - startTime) > worker.weak2Timing()) {
         ns.print(`Start Weak script`);
         proceed.secondWeak = true;
         worker.runWeak2(runOn);
