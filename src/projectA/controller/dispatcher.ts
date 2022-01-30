@@ -89,7 +89,7 @@ export async function main(ns: NS) {
     }
 
     let milliSecPassed = 0;
-    let proceed = {
+    const proceed = {
       hack: false,
       firstWeak: false,
       grow: false,
