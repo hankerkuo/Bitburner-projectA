@@ -71,7 +71,7 @@ export async function main(ns: NS) {
     }
 
     // too many grow threads, rest for a while
-    if (worker.growThread() > worker.minThreadGrowNeed * 5) {
+    if (worker.growThread() > CONST.WAIT_THRESHOLD_THREAD) {
       ns.tprint(`too many threads running for growing ${observedServer}`);
       ns.tprint(`wait for ${worker.growTime / 1000} seconds`);
       worker.runGrow(runOn);
@@ -95,12 +95,12 @@ export async function main(ns: NS) {
       grow: false,
       secondWeak: false,
     };
-    // batch observe every 10 second
+    // batch observe every 10 mili-second
     const startTime = Date.now();
     while (true) {
       await ns.sleep(10);
       milliSecPassed += 10;
-      if ((Date.now() - startTime) == CONST.ACTION_INTERVAL * 4) {
+      if (!triggeredNext && (Date.now() - startTime) >= CONST.ACTION_INTERVAL * 4) {
         ns.exec(
           scriptPosition.dispather,
           "home",
