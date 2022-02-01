@@ -6,11 +6,15 @@ import { CONST } from "/projectA/serverInfo/constant";
 // get thread needed to hack a percentage of money
 // return -1 if the money on server is not enough
 export const hackThread = (ns: NS, server: string, ratio: number) => {
-  return ns.hackAnalyzeThreads(server, ratio * ns.getServerMaxMoney(server));
+  let toReturn = 0;
+  // hackAnalyzeThreads will return -1 if money is not enough on server
+  toReturn = ns.hackAnalyzeThreads(server, ratio * ns.getServerMaxMoney(server));
+  return Math.min(CONST.MAX_THREAD_PER_SCRIPT, toReturn)
 };
 
 // get thread needed to grow the money based on hack ratio
 export const growThread = (ns: NS, server: string, hackRatio: number) => {
+  let toReturn = 0;
   const minimumNeed = ns.growthAnalyze(server, 1 / (1 - hackRatio));
   let growth =
     (ns.getServerMoneyAvailable(server) === 0)
@@ -20,8 +24,15 @@ export const growThread = (ns: NS, server: string, hackRatio: number) => {
     server,
     growth
   );
-  // recentNeed = Math.min(recentNeed, CONST.MAX_THREAD_PER_SCRIPT);
-  return Math.max(minimumNeed, recentNeed);
+  if (CONST.GROW_RATIO !== 0) {
+    toReturn = ns.growthAnalyze(
+      server,
+      CONST.GROW_RATIO
+    );
+  } else {
+    toReturn = Math.max(minimumNeed, recentNeed);
+  }
+  return Math.min(CONST.MAX_THREAD_PER_SCRIPT, toReturn);
 };
 
 export const weakenThreadForHack = (
@@ -29,8 +40,10 @@ export const weakenThreadForHack = (
   server: string,
   hackRatio: number
 ) => {
+  let toReturn = 0;
   const thread = hackThread(ns, server, hackRatio);
-  return ns.hackAnalyzeSecurity(thread) / 0.05;
+  toReturn = ns.hackAnalyzeSecurity(thread) / 0.05;
+  return Math.min(CONST.MAX_THREAD_PER_SCRIPT, toReturn);
 };
 
 export const weakenThreadForGrow = (
@@ -38,6 +51,8 @@ export const weakenThreadForGrow = (
   server: string,
   hackRatio: number
 ) => {
+  let toReturn = 0;
   const thread = growThread(ns, server, hackRatio);
-  return ns.growthAnalyzeSecurity(thread) / 0.05;
+  toReturn = ns.growthAnalyzeSecurity(thread) / 0.05;
+  return Math.min(CONST.MAX_THREAD_PER_SCRIPT, toReturn);
 };
