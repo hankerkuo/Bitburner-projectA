@@ -57,7 +57,7 @@ export class BaseWorker implements Worker {
     );
   }
   public growThread(): number {
-    return growThread(this.ns, this.observedServer, this.hackRatio);
+    return 1.2 * growThread(this.ns, this.observedServer, this.hackRatio);
   }
   public growTiming(): number {
     return this.timeLine.growStart;
@@ -69,13 +69,13 @@ export class BaseWorker implements Worker {
     return this.timeLine.hackStart;
   }
   public weak1Thread(): number {
-    return weakenThreadForHack(this.ns, this.observedServer, this.hackRatio);
+    return 1.2 * weakenThreadForHack(this.ns, this.observedServer, this.hackRatio);
   }
   public weak1Timing(): number {
     return this.timeLine.firstWeakStart;
   }
   public weak2Thread(): number {
-    return weakenThreadForGrow(this.ns, this.observedServer, this.hackRatio);
+    return 1.2 * weakenThreadForGrow(this.ns, this.observedServer, this.hackRatio);
   }
   public weak2Timing(): number {
     return this.timeLine.secondWeakStart;
@@ -86,7 +86,7 @@ export class BaseWorker implements Worker {
     this.ns.exec(
       scriptPosition.pureGrow,
       runOn,
-      thread * 1.2,
+      thread,
       this.observedServer,
       Date.now()
     );
@@ -108,7 +108,7 @@ export class BaseWorker implements Worker {
     this.ns.exec(
       scriptPosition.pureWeaken,
       runOn,
-      thread * 1.2,
+      thread,
       this.observedServer,
       Date.now()
     );
@@ -119,7 +119,7 @@ export class BaseWorker implements Worker {
     this.ns.exec(
       scriptPosition.pureWeaken,
       runOn,
-      thread * 1.2,
+      thread,
       this.observedServer,
       Date.now()
     );
