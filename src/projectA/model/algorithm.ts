@@ -10,7 +10,7 @@ export const calculateTimeLine = (
   let firstWeakStart = CONST.ACTION_INTERVAL - weakTime;
   let growStart = CONST.ACTION_INTERVAL * 2 - growTime;
   let secondWeakStart = CONST.ACTION_INTERVAL * 3 - weakTime;
-  //FIXME: fix the offset problem here!
+
   let offset = Math.min(hackStart, firstWeakStart, growStart, secondWeakStart);
   hackStart -= offset;
   firstWeakStart -= offset;
