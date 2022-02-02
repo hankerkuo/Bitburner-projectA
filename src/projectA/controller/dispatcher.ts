@@ -21,6 +21,10 @@ export async function main(ns: NS) {
   const runOn = ns.args[1].toString();
   const worker = new BaseWorker(ns, observedServer, CONST.HACK_RATIO);
 
+  const isHackLevelEnough = () => {
+    return ns.getHackingLevel() > ns.getServerRequiredHackingLevel(observedServer);
+  };
+
   const milliSecondToHour = (milliSec: number) => {
     return milliSec / 1000 / 3600;
   };
@@ -114,7 +118,11 @@ export async function main(ns: NS) {
       if (!proceed.hack && (Date.now() - startTime) > worker.hackTiming()) {
         ns.print(`Start Hack script`);
         proceed.hack = true;
-        worker.runHack(runOn);
+        if (isHackLevelEnough()){
+          worker.runHack(runOn);
+        } else{
+          ns.print(`Hack level not enough, skip hacking process`);
+        }
       }
       if (!proceed.firstWeak && (Date.now() - startTime) > worker.weak1Timing()) {
         ns.print(`Start Weak script`);
