@@ -22,7 +22,9 @@ export async function main(ns: NS) {
   const worker = new BaseWorker(ns, observedServer, CONST.HACK_RATIO);
 
   const isHackLevelEnough = () => {
-    return ns.getHackingLevel() > ns.getServerRequiredHackingLevel(observedServer);
+    return (
+      ns.getHackingLevel() > ns.getServerRequiredHackingLevel(observedServer)
+    );
   };
 
   const milliSecondToHour = (milliSec: number) => {
@@ -53,10 +55,10 @@ export async function main(ns: NS) {
       await ns.scp(scriptPosition.pureGrow, "home", runOn);
     }
 
-    // first time running or too secure, wait first
-    if (ns.args[2] === "starter" || 
-      (ns.getServerSecurityLevel(observedServer) >
-      ns.getServerMinSecurityLevel(observedServer) * 2)
+    // too secure, wait first
+    if (
+      ns.getServerSecurityLevel(observedServer) >
+        ns.getServerMinSecurityLevel(observedServer) * 2
     ) {
       ns.tprint(`too secure for ${observedServer}
       secure level: ${ns.getServerSecurityLevel(observedServer)}
@@ -104,7 +106,10 @@ export async function main(ns: NS) {
     while (true) {
       await ns.sleep(10);
       milliSecPassed += 10;
-      if (!triggeredNext && (Date.now() - startTime) >= CONST.ACTION_INTERVAL * 4) {
+      if (
+        !triggeredNext &&
+        Date.now() - startTime >= CONST.ACTION_INTERVAL * 4
+      ) {
         ns.exec(
           scriptPosition.dispather,
           "home",
@@ -115,26 +120,32 @@ export async function main(ns: NS) {
         );
         triggeredNext = true;
       }
-      if (!proceed.hack && (Date.now() - startTime) > worker.hackTiming()) {
+      if (!proceed.hack && Date.now() - startTime > worker.timeLine.hackStart) {
         ns.print(`Start Hack script`);
         proceed.hack = true;
-        if (isHackLevelEnough()){
+        if (isHackLevelEnough()) {
           worker.runHack(runOn);
-        } else{
+        } else {
           ns.print(`Hack level not enough, skip hacking process`);
         }
       }
-      if (!proceed.firstWeak && (Date.now() - startTime) > worker.weak1Timing()) {
+      if (
+        !proceed.firstWeak &&
+        Date.now() - startTime > worker.timeLine.firstWeakStart
+      ) {
         ns.print(`Start Weak script`);
         proceed.firstWeak = true;
         worker.runWeak1(runOn);
       }
-      if (!proceed.grow && (Date.now() - startTime) > worker.growTiming()) {
+      if (!proceed.grow && Date.now() - startTime > worker.timeLine.growStart) {
         ns.print(`Start Grow script`);
         proceed.grow = true;
         worker.runGrow(runOn);
       }
-      if (!proceed.secondWeak && (Date.now() - startTime) > worker.weak2Timing()) {
+      if (
+        !proceed.secondWeak &&
+        Date.now() - startTime > worker.timeLine.secondWeakStart
+      ) {
         ns.print(`Start Weak script`);
         proceed.secondWeak = true;
         worker.runWeak2(runOn);
@@ -144,8 +155,7 @@ export async function main(ns: NS) {
         proceed.firstWeak &&
         proceed.grow &&
         proceed.secondWeak &&
-        triggeredNext &&
-        ns.args[2]
+        triggeredNext
       ) {
         return;
       }
