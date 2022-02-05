@@ -3,4 +3,5 @@ dist/
 NetscriptDefinitions.d.ts
 .vscode/
 test/backupfile
+src/projectA/tester
 note.md
