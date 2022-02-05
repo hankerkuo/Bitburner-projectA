@@ -1,8 +1,8 @@
 import {
   NSMock,
   BasicHGWOptions,
-} from "/ns-mock/interface/NetscriptDefinitions";
-import { TestConst } from "/ns-mock/constant/const";
+} from "./interface/MockedNetscriptDefinitions";
+import { TestConst } from "./constant/const";
 
 export class NsImpl implements NSMock {
   readonly args;
