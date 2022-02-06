@@ -5,3 +5,4 @@ NetscriptDefinitions.d.ts
 test/backupfile
 src/projectA/tester
 note.md
+/coverage/
