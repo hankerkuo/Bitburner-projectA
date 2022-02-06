@@ -12,4 +12,9 @@
 export interface NSMock {
   readonly args: (string | number | boolean)[];
   hack(host: string, opts?: BasicHGWOptions): Promise<number>;
+  grow(host: string, opts?: BasicHGWOptions): Promise<number>;
+  weaken(host: string, opts?: BasicHGWOptions): Promise<number>;
+  hackAnalyzeThreads(host: string, hackAmount: number): number;
+  getServerMoneyAvailable(host: string): number;
+  getServerMaxMoney(host: string): number;
 }
