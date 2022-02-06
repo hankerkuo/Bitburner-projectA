@@ -4,5 +4,5 @@ import { NS } from "@ns";
 
 export async function main(ns:NS) {
   const target = ns.args[0].toString();
-  await ns.weaken(target);
+  return await ns.weaken(target);
 }
