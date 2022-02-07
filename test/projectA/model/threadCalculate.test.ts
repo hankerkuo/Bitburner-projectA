@@ -1,4 +1,4 @@
-import { hackThread } from "../../../src/projectA/model/threadCalculate";
+import { hackThread, growThread } from "../../../src/projectA/model/threadCalculate";
 import { CONST } from "../../../src/projectA/serverInfo/constant";
 import { NsImpl } from "../../../src/ns-mock/nsImpl";
 import { TestConst } from "../../../src/ns-mock/constant/const";
@@ -51,3 +51,25 @@ describe("Hack thread calculate verification", () => {
     expect(threadCalculated).toBeGreaterThan(0);
   });
 });
+
+describe("Grow thread calculate verification", () => {
+  const ns = new NsImpl("");
+  it("Check grow thread result not greater than max thread per script", () => {
+    const threadCalculated = growThread(
+      ns as NS,
+      "testServer",
+      CONST.HACK_RATIO
+    );
+    expect(threadCalculated).toBeGreaterThan(0);
+    expect(threadCalculated).toBeLessThanOrEqual(CONST.MAX_THREAD_PER_SCRIPT);
+  });
+  it("Check grow thread result return -1 when server not exists", () => {
+    const threadCalculated = growThread(
+      ns as NS,
+      "nonExistServer",
+      CONST.HACK_RATIO
+    );
+    expect(threadCalculated).toBe(-1);
+  });
+});
+
