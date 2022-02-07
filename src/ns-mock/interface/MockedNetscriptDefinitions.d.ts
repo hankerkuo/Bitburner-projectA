@@ -15,6 +15,8 @@ export interface NSMock {
   grow(host: string, opts?: BasicHGWOptions): Promise<number>;
   weaken(host: string, opts?: BasicHGWOptions): Promise<number>;
   hackAnalyzeThreads(host: string, hackAmount: number): number;
+  growthAnalyze(host: string, growthAmount: number, cores?: number): number;
   getServerMoneyAvailable(host: string): number;
   getServerMaxMoney(host: string): number;
+  print(...args: any[]): void;
 }

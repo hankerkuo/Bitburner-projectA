@@ -76,7 +76,21 @@ export class NsImpl implements NSMock {
       // here is just the simple simulation -> amount = (1 + x) ^ y
       return Math.pow(1 + (hackAmount / this.getServerMoneyAvailable(host)), 20);
     } else {
-      return -1;
+      throw new Error(`Invalid hostname or IP: ${host}`);
     }
+  }
+
+  growthAnalyze(host: string, growthAmount: number, cores?: number): number {
+    if (host === "testServer") {
+      //TODO: simulate the algorithm of needed threads
+      // here is just the simple simulation -> amount = (1 + x) ^ y
+      return Math.pow(growthAmount, 5);
+    } else {
+      throw new Error(`Invalid hostname or IP: ${host}`);
+    }
+  }
+
+  print(...args: any[]): void {
+    return;
   }
 }
