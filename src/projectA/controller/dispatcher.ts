@@ -62,7 +62,7 @@ export async function main(ns: NS) {
     ) {
       ns.tprint(`too secure for ${observedServer}
       secure level: ${ns.getServerSecurityLevel(observedServer)}
-      script serial = ${ns.args[2]}`);
+      wait for ${worker.weakTime / 1000} seconds`);
       worker.runWeakToLowest(runOn);
       await ns.sleep(worker.weakTime);
       ns.exec(
@@ -78,8 +78,8 @@ export async function main(ns: NS) {
 
     // too many grow threads, rest for a while
     if (worker.growThread() > CONST.WAIT_THRESHOLD_THREAD) {
-      ns.tprint(`too many threads running for growing ${observedServer}`);
-      ns.tprint(`wait for ${worker.growTime / 1000} seconds`);
+      ns.tprint(`too many threads running for growing ${observedServer}
+      wait for ${worker.growTime / 1000} seconds`);
       worker.runGrow(runOn);
       worker.runWeak2(runOn);
       await ns.sleep(worker.growTime);
