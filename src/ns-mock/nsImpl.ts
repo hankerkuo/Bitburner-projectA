@@ -90,6 +90,10 @@ export class NsImpl implements NSMock {
     }
   }
 
+  hackAnalyzeSecurity(threads: number): number {
+    return threads * 0.002;    
+  }
+
   print(...args: any[]): void {
     return;
   }

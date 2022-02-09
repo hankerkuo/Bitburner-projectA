@@ -18,5 +18,6 @@ export interface NSMock {
   growthAnalyze(host: string, growthAmount: number, cores?: number): number;
   getServerMoneyAvailable(host: string): number;
   getServerMaxMoney(host: string): number;
+  hackAnalyzeSecurity(threads: number): number;
   print(...args: any[]): void;
 }
