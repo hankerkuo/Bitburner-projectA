@@ -1,4 +1,4 @@
-import { hackThread, growThread } from "../../../src/projectA/model/threadCalculate";
+import { hackThread, growThread, weakenThreadForHack } from "../../../src/projectA/model/threadCalculate";
 import { CONST } from "../../../src/projectA/serverInfo/constant";
 import { NsImpl } from "../../../src/ns-mock/nsImpl";
 import { TestConst } from "../../../src/ns-mock/constant/const";
@@ -71,5 +71,37 @@ describe("Grow thread calculate verification", () => {
     );
     expect(threadCalculated).toBe(-1);
   });
+});
+
+describe("Weaken Thread For Hack calculate verification", () => {
+  const ns = new NsImpl("");
+  it("Check grow thread result not greater than max thread per script", () => {
+    const threadCalculated = weakenThreadForHack(
+      ns as NS,
+      "testServer",
+      ns.getServerMoneyAvailable("testServer") /
+        ns.getServerMaxMoney("testServer")
+    );
+    expect(threadCalculated).toBeGreaterThan(0);
+    expect(threadCalculated).toBeLessThanOrEqual(CONST.MAX_THREAD_PER_SCRIPT);
+  });
+  it("Check grow thread result return -1 when server not exists", () => {
+    const threadCalculated = weakenThreadForHack(
+      ns as NS,
+      "nonExistServer",
+      ns.getServerMoneyAvailable("testServer") /
+        ns.getServerMaxMoney("testServer")
+    );
+    expect(threadCalculated).toBe(-1);
+  });
+  it("Check grow thread result return -1 when server money is not enough", () => {
+    const threadCalculated = weakenThreadForHack(
+      ns as NS,
+      "nonExistServer",
+      1.1 * ns.getServerMoneyAvailable("testServer") /
+        ns.getServerMaxMoney("testServer")
+    );
+    expect(threadCalculated).toBe(-1);
+  })
 });
 
