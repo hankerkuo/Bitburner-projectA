@@ -50,8 +50,10 @@ export const weakenThreadForHack = (
   hackRatio: number
 ) => {
   const thread = hackThread(ns, server, hackRatio);
+  // toReturn set to -1 if thread is calculated as -1
   // max function here is to ensure the result being at least 1
-  const toReturn = Math.max(ns.hackAnalyzeSecurity(thread) / 0.05, 1);
+  const toReturn =
+    thread === -1 ? -1 : Math.max(ns.hackAnalyzeSecurity(thread) / 0.05, 1);
   return Math.min(CONST.MAX_THREAD_PER_SCRIPT, toReturn);
 };
 
