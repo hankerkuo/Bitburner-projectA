@@ -64,13 +64,14 @@ export const weakenThreadForGrow = (
 ) => {
   const thread = growThread(ns, server, hackRatio);
   // max function here is to ensure the result being at least 1
-  const toReturn = Math.max(ns.growthAnalyzeSecurity(thread) / 0.05, 1);
+  const toReturn =
+    thread === -1 ? -1 : Math.max(ns.growthAnalyzeSecurity(thread) / 0.05, 1);
   return Math.min(CONST.MAX_THREAD_PER_SCRIPT, toReturn);
 };
 
 export const weakenToLowest = (ns: NS, server: string) => {
   const toReturn =
-    (ns.getServerSecurityLevel(server) - ns.getServerMinSecurityLevel(server)) /
-    0.05;
+  Math.ceil((ns.getServerSecurityLevel(server) - ns.getServerMinSecurityLevel(server)) /
+    0.05);
   return Math.min(CONST.MAX_THREAD_PER_SCRIPT, toReturn);
 };
