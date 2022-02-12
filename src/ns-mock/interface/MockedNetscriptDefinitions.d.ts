@@ -19,5 +19,8 @@ export interface NSMock {
   getServerMoneyAvailable(host: string): number;
   getServerMaxMoney(host: string): number;
   hackAnalyzeSecurity(threads: number): number;
+  growthAnalyzeSecurity(threads: number): number;
+  getServerSecurityLevel(host: string): number;
+  getServerMinSecurityLevel(host: string): number;
   print(...args: any[]): void;
 }

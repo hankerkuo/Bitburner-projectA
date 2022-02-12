@@ -94,6 +94,30 @@ export class NsImpl implements NSMock {
     return threads * 0.002;    
   }
 
+  growthAnalyzeSecurity(threads: number): number {
+    return threads * 0.004;
+  }
+
+  getServerSecurityLevel(host: string): number {
+    if(host === "testServer") {
+      return TestConst.SECURITY_LEVEL_TEST_SERVER;
+    }else if (host === "testServer_minSec"){
+      return TestConst.MIN_SECURITY_LEVEL_TEST_SERVER;
+    }
+    else {
+      throw new Error(`Invalid hostname or IP: ${host}`);
+    }
+  }
+
+  getServerMinSecurityLevel(host: string): number {
+    if(host === "testServer" || host === "testServer_minSec") {
+      return TestConst.MIN_SECURITY_LEVEL_TEST_SERVER;
+    }
+    else {
+      throw new Error(`Invalid hostname or IP: ${host}`);
+    }  
+  }
+
   print(...args: any[]): void {
     return;
   }
